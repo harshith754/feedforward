@@ -1,44 +1,56 @@
-import { useClerk } from "@clerk/clerk-react";
+import { useState } from "react";
+import axios from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
-  const { openSignIn } = useClerk();
+  const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  async function handleLogin() {
     try {
-      await openSignIn({ redirectUrl: "/dashboard" });
-    } catch (err) {
-      console.error("Sign-in failed:", err);
+      const resp = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/login`,
+        { username, password },
+        { withCredentials: true }
+      );
+      if (resp.status === 200) {
+        navigate("/dashboard"); // ✅ Redirect after login
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err?.response?.data?.detail || "Login failed");
     }
-  };
+  }
 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-background text-foreground">
-      <div className="max-w-md w-full text-center space-y-6">
-        <h1 className="text-3xl font-bold">Welcome to FeedForward</h1>
-        <p className="text-muted-foreground">
-          Structured, safe feedback between managers and employees.
-        </p>
-        <div className="flex flex-col gap-4">
-          <Button
-            size="lg"
-            className="gap-2"
-            onClick={() => handleLogin()}
-          >
-            <User className="h-4 w-4" />
-            Continue as Manager
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="gap-2"
-            onClick={() => handleLogin()}
-          >
-            <User className="h-4 w-4" />
-            Continue as Employee
-          </Button>
-        </div>
+      <div className="max-w-sm w-full space-y-6">
+        <h1 className="text-3xl font-bold text-center">Login to FeedForward</h1>
+        <Input
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <Input
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          type="password"
+        />
+
+        {error && (
+          <p className="text-sm text-red-500 text-center">{error}</p>
+        )}
+
+        <Button className="gap-2 w-full" onClick={handleLogin}>
+          <User className="h-4 w-4" />
+          Login
+        </Button>
       </div>
     </main>
   );

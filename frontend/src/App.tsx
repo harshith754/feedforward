@@ -4,6 +4,8 @@ import { ThemeProvider } from "./components/theme-provider";
 import Navbar from "@/components/Navbar";
 import LandingPage from "./pages/Landing";
 import LoginPage from "./pages/Login";
+import SignUpPage from "./pages/SignUp";
+import { Toaster } from "sonner";
 
 function App() {
   return (
@@ -15,9 +17,12 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
+        <Toaster/>
       </div>
     </ThemeProvider>
   );

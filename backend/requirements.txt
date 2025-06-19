@@ -1,0 +1,17 @@
+# FastAPI core
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy
+psycopg2-binary  # use this for PostgreSQL (skip if using SQLite)
+
+# Auth
+passlib[bcrypt]          # for password hashing
+python-jose[cryptography]  # for JWT generation & validation
+
+# Migrations
+alembic
+
+# Env support
+python-dotenv

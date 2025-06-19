@@ -1,0 +1,69 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.partials/
+.installed.cfg
+*.swp
+*.bak
+*.tmp
+*.log
+
+# ==========================
+# Virtual Environment
+# ==========================
+venv/
+env/
+.venv/
+.idea/
+.vscode/
+
+# ==========================
+# Environment Variables
+# ==========================
+.env
+.env.*
+
+
+# ==========================
+# Alembic
+# ==========================
+alembic/versions/*.pyc
+
+# ==========================
+# Test files
+# ==========================
+.coverage
+htmlcov/
+pytest_cache/
+.pytest_cache/
+
+# ==========================
+# Editor & OS Specific
+# ==========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==========================
+# Logs
+# ==========================
+logs/
+*.log
+
+# ==========================
+# Others
+# ==========================
+.idea/
+*.iml
+.vscode/
+.cache/

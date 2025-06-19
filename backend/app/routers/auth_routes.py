@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app import schemas, models
 from app.database import get_db
+from app.middleware.auth import get_current_user
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -45,3 +46,12 @@ def login(user: schemas.UserLogin, response: Response, db: Session = Depends(get
 def logout(response: Response):
     response.delete_cookie("access_token", path="/")
     return {"message": "Logged out successfully"}
+
+@router.get("/me", response_model=schemas.UserOut)
+def get_current_user_profile(current_user: models.User = Depends(get_current_user)):
+    """
+    Returns the currently logged-in user's profile.
+    """
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Not authenticated.")
+    return current_user

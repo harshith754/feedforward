@@ -50,6 +50,7 @@ def create_jwt_token(user: models.User):
     payload = {
         "sub": user.username,
         "role": user.role,
-        "exp": datetime.utcnow() + timedelta(hours=1)
+        "exp": datetime.utcnow() + timedelta(hours=24),
     }
-    return jwt.encode(payload, config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
+    token = jwt.encode(payload, config.JWT_SECRET, algorithm=config.JWT_ALGORITHM)
+    return token

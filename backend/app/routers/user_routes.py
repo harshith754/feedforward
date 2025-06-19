@@ -67,3 +67,10 @@ def get_my_manager(
     if not manager:
         return {"manager": None}
     return {"manager": {"id": manager.id, "username": manager.username}}
+  
+
+@router.get("/managers")
+def get_all_managers(db: Session = Depends(get_db)):
+    """Return a list of all manager users."""
+    managers = db.query(models.User).filter(models.User.role == "manager").all()
+    return [{"id": m.id, "username": m.username} for m in managers]

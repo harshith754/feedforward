@@ -32,6 +32,7 @@ def create_user(user: schemas.UserCreate, db: Session):
     new_user = models.User(
         username=user.username,
         hashed_password=hashed,
+        full_name=user.full_name,
         role=user.role,
         manager_id=user.manager_id
     )

@@ -16,16 +16,16 @@ export default function LandingPage() {
           FeedForward helps managers and team members share structured, ongoing feedback — clearly, securely, and respectfully.
         </p>
         <div className="flex flex-wrap justify-center gap-4 pt-4">
-          <Link to="/sign-in?role=manager">
+          <Link to="/signup">
             <Button size="lg" className="gap-2">
               <User className="h-4 w-4" />
-              Manager Sign In
+              Register
             </Button>
           </Link>
-          <Link to="/sign-in?role=employee">
+          <Link to="/login">
             <Button variant="outline" size="lg" className="gap-2">
               <User className="h-4 w-4" />
-              Employee Sign In
+              Log In
             </Button>
           </Link>
         </div>

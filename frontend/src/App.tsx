@@ -6,6 +6,7 @@ import LandingPage from "./pages/Landing";
 import LoginPage from "./pages/Login";
 import SignUpPage from "./pages/SignUp";
 import { Toaster } from "sonner";
+import ManageUsers from "./pages/ManageUsers";
 
 function App() {
   return (
@@ -15,14 +16,15 @@ function App() {
         <main className="max-w-7xl mx-auto">
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/manage-users" element={<ManageUsers />} />{" "}
+            {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignUpPage />} />
-
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
-        <Toaster/>
+        <Toaster />
       </div>
     </ThemeProvider>
   );

@@ -6,8 +6,9 @@ from app.middleware.auth import get_current_user, get_manager_user
 
 router = APIRouter(prefix="/api/users", tags=["User Management"])
 
+# Assign self as manager to a developer (only if you're a manager)
 @router.put("/{user_id}/assign-manager")
-def assign_manager(
+def assign_self_as_manager(
     user_id: int = Path(..., description="ID of the developer"),
     manager_user: models.User = Depends(get_manager_user),
     db: Session = Depends(get_db),
@@ -15,14 +16,16 @@ def assign_manager(
     dev = db.query(models.User).filter(models.User.id == user_id).first()
     if not dev:
         raise HTTPException(status_code=404, detail="User not found.")
-    if dev.role != "employee":
-        raise HTTPException(status_code=400, detail="Target user must be an employee.")
+    if dev.role != "developer":
+        raise HTTPException(status_code=400, detail="Target user must be a developer.")
+
     dev.manager_id = manager_user.id
     db.commit()
     db.refresh(dev)
     return {"message": f"{dev.username} is now managed by {manager_user.username}"}
 
 
+# Reassign developer to a different manager (can be any manager)
 @router.put("/{user_id}/change-manager/{new_manager_id}")
 def change_manager(
     user_id: int,
@@ -35,8 +38,8 @@ def change_manager(
 
     if not dev:
         raise HTTPException(status_code=404, detail="User not found.")
-    if dev.role != "employee":
-        raise HTTPException(status_code=400, detail="Target user must be an employee.")
+    if dev.role != "developer":
+        raise HTTPException(status_code=400, detail="Target user must be a developer.")
     if not new_manager or new_manager.role != "manager":
         raise HTTPException(status_code=400, detail="New manager must have role 'manager'.")
 
@@ -45,17 +48,26 @@ def change_manager(
     db.refresh(dev)
     return {"message": f"{dev.username} is now managed by {new_manager.username}"}
 
+
+# Get team members for the currently logged-in manager
 @router.get("/team")
-def get_team(
+def get_my_team(
     manager_user: models.User = Depends(get_manager_user),
     db: Session = Depends(get_db),
 ):
     team = db.query(models.User).filter(models.User.manager_id == manager_user.id).all()
     return [
-        {"id": dev.id, "username": dev.username, "role": dev.role}
+        {
+            "id": dev.id,
+            "username": dev.username,
+            "full_name": dev.full_name,
+            "role": dev.role
+        }
         for dev in team
     ]
 
+
+# Get my current manager (as a developer)
 @router.get("/manager")
 def get_my_manager(
     current_user: models.User = Depends(get_current_user),
@@ -63,14 +75,60 @@ def get_my_manager(
 ):
     if current_user.manager_id is None:
         return {"manager": None}
+
     manager = db.query(models.User).filter(models.User.id == current_user.manager_id).first()
     if not manager:
         return {"manager": None}
-    return {"manager": {"id": manager.id, "username": manager.username}}
-  
 
+    return {
+        "manager": {
+            "id": manager.id,
+            "username": manager.username,
+            "full_name": manager.full_name
+        }
+    }
+
+
+# Get all users with their manager info (manager-only access)
+@router.get("/all")
+def get_all_users(
+    manager_user: models.User = Depends(get_manager_user),
+    db: Session = Depends(get_db),
+):
+    users = db.query(models.User).all()
+    result = []
+
+    for user in users:
+        manager = (
+            db.query(models.User)
+            .filter(models.User.id == user.manager_id)
+            .first()
+            if user.manager_id
+            else None
+        )
+        result.append({
+            "id": user.id,
+            "username": user.username,
+            "full_name": user.full_name,
+            "role": user.role,
+            "manager": {
+                "id": manager.id,
+                "username": manager.username,
+                "full_name": manager.full_name
+            } if manager else None
+        })
+
+    return result
+
+
+# List all managers
 @router.get("/managers")
 def get_all_managers(db: Session = Depends(get_db)):
-    """Return a list of all manager users."""
     managers = db.query(models.User).filter(models.User.role == "manager").all()
-    return [{"id": m.id, "username": m.username} for m in managers]
+    return [
+        {
+            "id": m.id,
+            "username": m.username,
+            "full_name": m.full_name
+        } for m in managers
+    ]

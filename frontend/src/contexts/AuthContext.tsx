@@ -1,53 +1,59 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import type { ReactNode } from "react";
-
 import axios from "@/services/api";
 
 interface User {
   id: number;
   username: string;
-  role: "manager" | "employee";
+  role: string;
+  full_name?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  logout: () => void;
-  fetchUser: () => void;
+  setUser: (user: User | null) => void;
+  logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  setUser: () => {},
+  logout: async () => {},
+});
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  const fetchUser = async () => {
-    try {
-      const resp = await axios.get("/api/auth/me");
-      setUser(resp.data);
-    } catch {
-      setUser(null);
-    }
-  };
-  
-  const logout = async () => {
-    await axios.post("/api/auth/logout");
-    setUser(null);
-  };
-  
   useEffect(() => {
+    async function fetchUser() {
+      try {
+        const resp = await axios.get("/api/auth/me", {
+          withCredentials: true,
+        });
+        setUser(resp.data);
+      } catch {
+        setUser(null);
+      }
+    }
     fetchUser();
   }, []);
 
+  const logout = async () => {
+    try {
+      await axios.post("/api/auth/logout", {}, { withCredentials: true });
+      setUser(null);
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, logout, fetchUser }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-  return ctx;
+
+export const useAuth = (): AuthContextType => {
+  return useContext(AuthContext);
 };

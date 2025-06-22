@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "@/services/api";
 import { Button } from "@/components/ui/button";
-import { User } from "lucide-react";
+import { User, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -15,11 +15,13 @@ import { toast } from "sonner";
 export default function SignUpPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"manager" | "developer">("developer");
   const [managerId, setManagerId] = useState<number | undefined>(undefined);
   const [managers, setManagers] = useState<{ id: number; username: string }[]>(
     []
   );
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchManagers() {
@@ -41,10 +43,12 @@ export default function SignUpPage() {
   }, [role]);
 
   async function handleSignUp() {
+    setLoading(true);
     try {
       const payload: any = {
         username,
         password,
+        full_name: fullName,
         role,
       };
       if (role === "developer") {
@@ -58,7 +62,7 @@ export default function SignUpPage() {
           withCredentials: true,
         }
       );
-      toast("User registered successfully! You have logged in!");
+      toast("User registered successfully! Logging you in...");
 
       const loginResp = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/login`,
@@ -71,14 +75,17 @@ export default function SignUpPage() {
       }
     } catch (error) {
       console.error(error);
-      toast("Error signing up");
+      toast("Error signing up. Try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-background text-foreground">
-      <div className="max-w-sm w-full space-y-6">
+    <main className="flex justify-center items-start px-4 py-12 bg-background text-foreground">
+      <div className="w-full max-w-sm space-y-6">
         <h1 className="text-3xl font-bold text-center">Create Your Account</h1>
+
         <Input
           placeholder="Username"
           value={username}
@@ -90,6 +97,12 @@ export default function SignUpPage() {
           onChange={(e) => setPassword(e.target.value)}
           type="password"
         />
+        <Input
+          placeholder="Full Name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+        />
+
         <Select
           value={role}
           onValueChange={(val) => setRole(val as "manager" | "developer")}
@@ -99,7 +112,7 @@ export default function SignUpPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="manager">Manager</SelectItem>
-            <SelectItem value="developer">developer</SelectItem>
+            <SelectItem value="developer">Developer</SelectItem>
           </SelectContent>
         </Select>
 
@@ -121,9 +134,22 @@ export default function SignUpPage() {
           </Select>
         )}
 
-        <Button className="gap-2 w-full" onClick={handleSignUp}>
-          <User className="h-4 w-4" />
-          Sign Up
+        <Button
+          className="gap-2 w-full"
+          onClick={handleSignUp}
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Creating Account...
+            </>
+          ) : (
+            <>
+              <User className="h-4 w-4" />
+              Sign Up
+            </>
+          )}
         </Button>
       </div>
     </main>

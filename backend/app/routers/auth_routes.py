@@ -5,6 +5,7 @@ from app import models
 from app.database import get_db
 from app.middleware.auth import get_current_user
 from app.schemas import user
+import os
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -31,12 +32,14 @@ def login(user: user.UserLogin, response: Response, db: Session = Depends(get_db
 
     token = auth.create_jwt_token(db_user)
 
+    # Set cookie flags based on environment for local dev and production
+    is_prod = os.getenv("ENV", "dev").lower() == "prod"
     response.set_cookie(
         key="access_token",
         value=token,
         httponly=True,
-        secure=False,
-        samesite="lax",
+        secure=is_prod,  # True in production (HTTPS), False locally
+        samesite="none" if is_prod else "lax",  # 'none' for cross-site, 'lax' for local
         max_age=60 * 60 * 24,
         path="/"
     )

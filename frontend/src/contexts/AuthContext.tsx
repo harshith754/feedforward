@@ -23,6 +23,7 @@ export const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUser() {
@@ -33,6 +34,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(resp.data);
       } catch {
         setUser(null);
+      } finally {
+        setLoading(false);
       }
     }
     fetchUser();
@@ -46,6 +49,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Logout failed:", error);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="text-muted-foreground text-lg">Loading...</span>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout }}>

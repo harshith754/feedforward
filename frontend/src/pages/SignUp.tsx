@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "@/contexts/AuthContext";
 import axios from "@/services/api";
 import { Button } from "@/components/ui/button";
 import { User, Loader2 } from "lucide-react";
@@ -22,6 +24,8 @@ export default function SignUpPage() {
     []
   );
   const [loading, setLoading] = useState(false);
+  const { setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchManagers() {
@@ -68,9 +72,9 @@ export default function SignUpPage() {
         { username, password },
         { withCredentials: true }
       );
-
       if (loginResp.status === 200) {
-        window.location.href = "/dashboard";
+        setUser(loginResp.data);
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error(error);

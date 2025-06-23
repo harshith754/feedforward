@@ -14,7 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import { MessageSquarePlus, Star, User as UserIcon } from "lucide-react";
 import type { User } from "@/types/user";

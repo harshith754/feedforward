@@ -1,14 +1,15 @@
 from app.services import auth
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
-from app import schemas, models
+from app import models
 from app.database import get_db
 from app.middleware.auth import get_current_user
+from app.schemas import user
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
-@router.post("/register", response_model=schemas.UserOut)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+@router.post("/register", response_model=user.UserOut)
+def register(user: user.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
         raise HTTPException(status_code=400, detail="Username already exists")
@@ -23,7 +24,7 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/login")
-def login(user: schemas.UserLogin, response: Response, db: Session = Depends(get_db)):
+def login(user: user.UserLogin, response: Response, db: Session = Depends(get_db)):
     db_user = auth.authenticate_user(user.username, user.password, db)
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -47,7 +48,7 @@ def logout(response: Response):
     response.delete_cookie("access_token", path="/")
     return {"message": "Logged out successfully"}
 
-@router.get("/me", response_model=schemas.UserOut)
+@router.get("/me", response_model=user.UserOut)
 def get_current_user_profile(current_user: models.User = Depends(get_current_user)):
     """
     Returns the currently logged-in user's profile.

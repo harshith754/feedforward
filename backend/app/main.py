@@ -1,9 +1,12 @@
 import os
+import dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import engine
 from app import models
-from app.routers import auth_routes,user_routes
+from app.routers import auth_routes,user_routes, feedback_routes
+
+dotenv.load_dotenv()
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -23,3 +26,4 @@ app.add_middleware(
 # 👇 Register auth routes
 app.include_router(auth_routes.router)
 app.include_router(user_routes.router)
+app.include_router(feedback_routes.router)

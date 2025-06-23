@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="w-full px-4 py-3 flex justify-between items-center border-b bg-background">
+    <header className="w-full px-4 sm:px-8 py-3 flex justify-between items-center border-b bg-background">
       {/* Logo */}
       <Link to="/">
         <h1 className="text-xl sm:text-2xl font-bold text-primary">

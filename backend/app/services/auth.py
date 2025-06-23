@@ -2,10 +2,12 @@ from sqlalchemy.orm import Session
 from jose import jwt
 from datetime import datetime, timedelta
 
-from app import models, schemas, config
+from app import models, config
 from app.database import SessionLocal
 from app.utils.security import hash_password,verify_password
 from fastapi import HTTPException, status
+
+from app.schemas import user
 
 def get_db():
     db = SessionLocal()
@@ -14,7 +16,7 @@ def get_db():
     finally:
         db.close()
 
-def create_user(user: schemas.UserCreate, db: Session):
+def create_user(user: user.UserCreate, db: Session):
     if user.manager_id is not None:
         manager = db.query(models.User).filter(models.User.id == user.manager_id).first()
         if not manager:

@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { LayoutDashboard, MessageSquareHeart, ShieldCheck, User } from "lucide-react";

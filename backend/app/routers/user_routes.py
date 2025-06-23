@@ -137,3 +137,30 @@ def get_all_managers(db: Session = Depends(get_db)):
             "rating": m.average_rating or 5
         } for m in managers
     ]
+
+
+# Fetch a single user by ID
+@router.get("/{user_id}")
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found.")
+    manager = (
+        db.query(models.User)
+        .filter(models.User.id == user.manager_id)
+        .first()
+        if user.manager_id else None
+    )
+    return {
+        "id": user.id,
+        "username": user.username,
+        "full_name": user.full_name,
+        "role": user.role,
+        "rating": user.average_rating or 5,
+        "manager": {
+            "id": manager.id,
+            "username": manager.username,
+            "full_name": manager.full_name,
+            "rating": manager.average_rating or 5
+        } if manager else None
+    }

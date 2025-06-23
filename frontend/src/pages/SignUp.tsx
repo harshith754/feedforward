@@ -18,29 +18,28 @@ export default function SignUpPage() {
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<"manager" | "developer">("developer");
   const [managerId, setManagerId] = useState<number | undefined>(undefined);
-  const [managers, setManagers] = useState<{ id: number; username: string }[]>(
+  const [managers, setManagers] = useState<{ id: number; full_name: string }[]>(
     []
   );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchManagers() {
-      if (role === "developer") {
-        try {
-          const resp = await axios.get(
-            `${import.meta.env.VITE_API_URL}/api/users/managers`,
-            {
-              withCredentials: true,
-            }
-          );
-          setManagers(resp.data);
-        } catch (error) {
-          console.error(error);
-        }
+      // Always fetch managers so developer can select one
+      try {
+        const resp = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/users/managers`,
+          {
+            withCredentials: true,
+          }
+        );
+        setManagers(resp.data);
+      } catch (error) {
+        console.error(error);
       }
     }
     fetchManagers();
-  }, [role]);
+  }, []);
 
   async function handleSignUp() {
     setLoading(true);
@@ -116,7 +115,7 @@ export default function SignUpPage() {
           </SelectContent>
         </Select>
 
-        {role === "developer" && (
+        {role === "developer" && managers.length > 0 && (
           <Select
             value={managerId?.toString()}
             onValueChange={(val) => setManagerId(parseInt(val))}
@@ -125,11 +124,13 @@ export default function SignUpPage() {
               <SelectValue placeholder="Select a manager" />
             </SelectTrigger>
             <SelectContent>
-              {managers.map((m) => (
-                <SelectItem key={m.id} value={m.id.toString()}>
-                  {m.username}
-                </SelectItem>
-              ))}
+              {managers
+                .filter((m) => m.id !== managerId) // Prevent selecting self as manager
+                .map((m) => (
+                  <SelectItem key={m.id} value={m.id.toString()}>
+                    {m.full_name}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         )}

@@ -377,6 +377,17 @@ const Dashboard = () => {
                               <MessageSquarePlus className="h-4 w-4 mr-2" />
                               Give Feedback
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="flex-1"
+                              onClick={() =>
+                                (window.location.href = `/feedback/history/${dev.id}`)
+                              }
+                            >
+                              <History className="h-4 w-4 mr-2" />
+                              View History
+                            </Button>
                           </div>
                         </div>
                       </CardContent>

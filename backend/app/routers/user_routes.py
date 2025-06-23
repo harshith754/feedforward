@@ -61,7 +61,8 @@ def get_my_team(
             "id": dev.id,
             "username": dev.username,
             "full_name": dev.full_name,
-            "role": dev.role
+            "role": dev.role,
+            "rating": dev.average_rating or 5
         }
         for dev in team
     ]
@@ -84,7 +85,8 @@ def get_my_manager(
         "manager": {
             "id": manager.id,
             "username": manager.username,
-            "full_name": manager.full_name
+            "full_name": manager.full_name,
+            "rating": manager.average_rating or 5
         }
     }
 
@@ -111,10 +113,12 @@ def get_all_users(
             "username": user.username,
             "full_name": user.full_name,
             "role": user.role,
+            "rating": user.average_rating or 5,
             "manager": {
                 "id": manager.id,
                 "username": manager.username,
-                "full_name": manager.full_name
+                "full_name": manager.full_name,
+                "rating": manager.average_rating or 5
             } if manager else None
         })
 
@@ -129,6 +133,7 @@ def get_all_managers(db: Session = Depends(get_db)):
         {
             "id": m.id,
             "username": m.username,
-            "full_name": m.full_name
+            "full_name": m.full_name,
+            "rating": m.average_rating or 5
         } for m in managers
     ]
